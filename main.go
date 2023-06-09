@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -15,10 +16,19 @@ func main() {
 		customMessage = "Hello, world!"
 	}
 
+	externalURL := os.Getenv("EXTERNAL_URL")
+
 	helloHandler := func(w http.ResponseWriter, req *http.Request) {
 		io.WriteString(w, customMessage)
 	}
 
+	canaryHandler := func(w http.ResponseWriter, req *http.Request) {
+		res, _ := http.Get(externalURL)
+		b, _ := ioutil.ReadAll(res.Body)
+		io.WriteString(w, string(b))
+	}
+
 	http.HandleFunc("/", helloHandler)
+	http.HandleFunc("/canary", canaryHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
