@@ -23,8 +23,14 @@ func main() {
 	}
 
 	canaryHandler := func(w http.ResponseWriter, req *http.Request) {
-		res, _ := http.Get(externalURL)
-		b, _ := ioutil.ReadAll(res.Body)
+		res, err := http.Get(externalURL)
+		if err != nil {
+			panic(err)
+		}
+		b, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			panic(err)
+		}
 		io.WriteString(w, string(b))
 	}
 
